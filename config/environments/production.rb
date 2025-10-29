@@ -82,8 +82,9 @@ Rails.application.configure do
   #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
   # ]
   #
-  # Allow requests from Railway production domain
-  config.hosts << "qiraat-api-v2-production.up.railway.app"
+  # Allow requests from Railway domains (all subdomains)
+  config.hosts << /.*\.up\.railway\.app/
+  config.hosts << /.*\.railway\.app/
 
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
