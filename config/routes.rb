@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
   namespace :api do
     resources :narrators, only: [:index]
-    resources :variations, only: [:index, :show, :create]
+    resources :variations, only: [:index, :show, :create, :destroy] do
+      collection do
+        delete "by_keys", to: "variations#destroy_by_keys"
+      end
+    end
     resources :words, only: [:index, :show]
     resources :mushafs, only: [:index, :show] do
       resources :pages, only: [:show]

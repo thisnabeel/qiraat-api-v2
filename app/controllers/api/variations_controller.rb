@@ -37,6 +37,32 @@ class Api::VariationsController < ApplicationController
     render json: @variation.as_json(include: [:narrator, :word])
   end
 
+  def destroy
+    @variation = Variation.find(params[:id])
+    if @variation.destroy
+      head :no_content
+    else
+      render json: { errors: @variation.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy_by_keys
+    @variation = Variation.find_by(
+      word_id: params[:word_id],
+      narrator_id: params[:narrator_id]
+    )
+    
+    if @variation
+      if @variation.destroy
+        head :no_content
+      else
+        render json: { errors: @variation.errors }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: "Variation not found" }, status: :not_found
+    end
+  end
+
   private
 
   def variation_params
