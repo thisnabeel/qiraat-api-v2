@@ -1,0 +1,13 @@
+{
+  "name": "qiraat-api-v2",
+  "version": "1.0.0",
+  "description": "Puppeteer script for scraping mushaf pages",
+  "main": "lib/scripts/fetch_page.js",
+  "scripts": {
+    "fetch-page": "node lib/scripts/fetch_page.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
+
