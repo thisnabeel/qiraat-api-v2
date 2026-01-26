@@ -1,0 +1,5 @@
+class AddRegionIdToNarrators < ActiveRecord::Migration[8.0]
+  def change
+    add_reference :narrators, :region, null: true, foreign_key: true
+  end
+end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_29_001630) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_26_011654) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,6 +32,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_29_001630) do
     t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "narrator_id"
+    t.bigint "region_id"
+    t.string "highlight_color"
+    t.index ["narrator_id"], name: "index_narrators_on_narrator_id"
+    t.index ["region_id"], name: "index_narrators_on_region_id"
   end
 
   create_table "pages", force: :cascade do |t|
@@ -40,6 +45,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_29_001630) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["mushaf_id"], name: "index_pages_on_mushaf_id"
+  end
+
+  create_table "regions", force: :cascade do |t|
+    t.text "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "variations", force: :cascade do |t|
@@ -63,6 +74,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_29_001630) do
   end
 
   add_foreign_key "lines", "pages"
+  add_foreign_key "narrators", "narrators"
+  add_foreign_key "narrators", "regions"
   add_foreign_key "pages", "mushafs"
   add_foreign_key "variations", "narrators"
   add_foreign_key "variations", "words"

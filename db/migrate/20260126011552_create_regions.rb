@@ -1,0 +1,9 @@
+class CreateRegions < ActiveRecord::Migration[8.0]
+  def change
+    create_table :regions do |t|
+      t.text :title
+
+      t.timestamps
+    end
+  end
+end
