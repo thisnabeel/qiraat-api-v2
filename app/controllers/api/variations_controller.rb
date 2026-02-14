@@ -27,8 +27,36 @@ class Api::VariationsController < ApplicationController
       @variations = Variation.where(word_id: params[:word_id]).includes(:narrator)
       render json: @variations.as_json(include: :narrator)
     else
-      @variations = Variation.all.includes(:narrator, :word)
-      render json: @variations.as_json(include: [:narrator, :word])
+      # Get all variations for entire mushaf (for narration changes sidebar)
+      # Optional: filter by narrator_ids (comma-separated) to reduce payload
+      # Optional: filter by mushaf_id to scope to a specific mushaf's pages
+      @variations = Variation
+        .joins(word: { line: :page })
+        .includes(:narrator, word: { line: :page })
+      if params[:mushaf_id].present?
+        @variations = @variations.where(pages: { mushaf_id: params[:mushaf_id] })
+      end
+      if params[:narrator_ids].present?
+        narrator_ids = params[:narrator_ids].split(',').map(&:to_i)
+        @variations = @variations.where(narrator_id: narrator_ids)
+      end
+      @variations = @variations.order('pages.position ASC, lines.position ASC, words.position ASC')
+      render json: @variations.as_json(
+        include: {
+          narrator: { only: [:id, :title, :highlight_color] },
+          word: {
+            only: [:id, :content, :position, :ayah],
+            include: {
+              line: {
+                only: [:id, :position],
+                include: {
+                  page: { only: [:id, :position] }
+                }
+              }
+            }
+          }
+        }
+      )
     end
   end
 
