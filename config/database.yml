@@ -81,9 +81,11 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: qiraat_api_production
-    username: qiraat_api
-    password: <%= ENV["QIRAAT_API_DATABASE_PASSWORD"] %>
+    url: <%= ENV["DATABASE_URL"] %>
+    # When DATABASE_URL is not set (e.g. local), use explicit settings:
+    database: <%= ENV["DATABASE_URL"].present? ? nil : "qiraat_api_production" %>
+    username: <%= ENV["DATABASE_URL"].present? ? nil : "qiraat_api" %>
+    password: <%= ENV["DATABASE_URL"].present? ? nil : ENV["QIRAAT_API_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
     database: qiraat_api_production_cache

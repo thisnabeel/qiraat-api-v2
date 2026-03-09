@@ -8,6 +8,7 @@ class Api::VariationsController < ApplicationController
     )
     
     @variation.content = variation_params[:content]
+    @variation.special_characters = variation_params[:special_characters] if variation_params.key?(:special_characters)
     
     if @variation.save
       render json: @variation, status: :created
@@ -94,6 +95,9 @@ class Api::VariationsController < ApplicationController
   private
 
   def variation_params
-    params.require(:variation).permit(:content, :word_id, :narrator_id)
+    # special_characters: { imalah: { indices: [], placement_by_letter: {} }, diamond: { ... } } (API may send placementByLetter; we normalize in model if needed)
+    permitted = params.require(:variation).permit(:content, :word_id, :narrator_id)
+    permitted[:special_characters] = params[:variation][:special_characters] if params[:variation].key?(:special_characters)
+    permitted
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_26_011654) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_06_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_011654) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "word_id", null: false
+    t.jsonb "special_characters"
     t.index ["narrator_id"], name: "index_variations_on_narrator_id"
     t.index ["word_id"], name: "index_variations_on_word_id"
   end
