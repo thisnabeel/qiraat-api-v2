@@ -11,7 +11,7 @@ class Api::PagesController < ApplicationController
             only: [:id, :position, :content, :ayah] 
           } 
         }, 
-        only: [:id, :position] 
+        only: [:id, :position, :surah_header_position] 
       } 
     }, only: [:id, :position])
   end
