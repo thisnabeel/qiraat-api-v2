@@ -7,6 +7,8 @@ Rails.application.routes.draw do
       end
     end
     resources :words, only: [:index, :show]
+    # Declared before nested `pages` so it never competes with `…/pages/:id`.
+    get "mushafs/:id/surah_header_markers", to: "mushafs#surah_header_markers", as: :mushaf_surah_header_markers
     resources :mushafs, only: [:index, :show] do
       resources :pages, only: [:show] do
         member do
