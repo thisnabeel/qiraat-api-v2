@@ -42,14 +42,14 @@ class Api::VariationsController < ApplicationController
         @variations = @variations.where(narrator_id: narrator_ids)
       end
       @variations = @variations.order('pages.position ASC, lines.position ASC, words.position ASC')
-      render json: @variations.as_json(
+      payload = @variations.as_json(
         include: {
           narrator: { only: [:id, :title, :highlight_color] },
           word: {
             only: [:id, :content, :position, :ayah],
             include: {
               line: {
-                only: [:id, :position],
+                only: [:id, :position, :surah_header_position],
                 include: {
                   page: { only: [:id, :position] }
                 }
@@ -58,6 +58,9 @@ class Api::VariationsController < ApplicationController
           }
         }
       )
+      mushaf_id = params[:mushaf_id].presence&.to_i
+      append_surah_numbers!(payload, mushaf_id) if mushaf_id&.positive?
+      render json: payload
     end
   end
 
@@ -93,6 +96,46 @@ class Api::VariationsController < ApplicationController
   end
 
   private
+
+  # Each line with surah_header_position > 0 is a surah title row; the value is the surah number.
+  # Words on following lines inherit that surah until the next such header (mushaf reading order).
+  def append_surah_numbers!(variations_json, mushaf_id)
+    segments = Line.unscoped
+                   .joins(:page)
+                   .where(pages: { mushaf_id: mushaf_id })
+                   .where("lines.surah_header_position > 0")
+                   .order("pages.position ASC, lines.position ASC")
+                   .pluck("pages.position", "lines.position", "lines.surah_header_position")
+
+    variations_json.each do |item|
+      word = item["word"]
+      next unless word
+
+      line = word["line"]
+      page = line && line["page"]
+      next unless line && page
+
+      page_pos = page["position"].to_i
+      line_pos = line["position"].to_i
+      item["surah_number"] = surah_number_at(page_pos, line_pos, segments)
+    end
+  end
+
+  def surah_number_at(page_pos, line_pos, segments)
+    return 1 if segments.blank?
+
+    idx = segments.bsearch_index do |(sp, sl, _)|
+      sp > page_pos || (sp == page_pos && sl > line_pos)
+    end
+    chosen = if idx.nil?
+               segments.last
+             elsif idx.positive?
+               segments[idx - 1]
+             else
+               nil
+             end
+    chosen ? chosen[2].to_i : 1
+  end
 
   def variation_params
     # special_characters: { imalah: { indices: [], placement_by_letter: {} }, diamond: { ... } } (API may send placementByLetter; we normalize in model if needed)

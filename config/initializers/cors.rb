@@ -7,8 +7,14 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # Allow requests from Vercel deployment and localhost for development
-    origins 'https://qiraat-react-native.vercel.app', 'http://localhost:19006', 'http://localhost:3000', 'http://localhost:8081'
+    # Vercel production + preview URLs (*.vercel.app), and local dev
+    origins(
+      /\Ahttps:\/\/.+\.vercel\.app\z/,
+      "https://qiraat-react-native.vercel.app",
+      "http://localhost:19006",
+      "http://localhost:3000",
+      "http://localhost:8081"
+    )
 
     resource "*",
       headers: :any,

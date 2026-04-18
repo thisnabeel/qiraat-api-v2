@@ -8,7 +8,11 @@ Rails.application.routes.draw do
     end
     resources :words, only: [:index, :show]
     resources :mushafs, only: [:index, :show] do
-      resources :pages, only: [:show]
+      resources :pages, only: [:show] do
+        member do
+          post :insert_surah_header
+        end
+      end
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

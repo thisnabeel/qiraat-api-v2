@@ -104,13 +104,7 @@ class Page < ApplicationRecord
     target_position = slots[selected_index][:insert_at_position]
 
     transaction do
-      # Normalize positions first, then make room for two inserted lines.
-      ordered_lines = lines.order(:position).to_a
-      ordered_lines.each_with_index do |line, idx|
-        expected = idx + 1
-        line.update_columns(position: expected) if line.position != expected
-      end
-
+      normalize_line_positions!
       lines.where("position >= ?", target_position).update_all("position = position + 2")
       2.times { |offset| lines.create!(position: target_position + offset) }
     end
@@ -119,7 +113,55 @@ class Page < ApplicationRecord
     target_position
   end
 
+  # API / app: insert basmala + surah banner rows (mushaf 2, max 13 lines per page).
+  # +insert_at_position+ is the first row index for the new block (same convention as +insert_surah_header+).
+  # With room for two new lines: row at +insert_at_position+ gets +surah_header_position+ -1 (basmala),
+  # next row gets +surah_number+. With room for one: only the surah banner row is created.
+  def insert_surah_header_block!(insert_at_position:, surah_number:)
+    raise ArgumentError, "mushaf 2 only" unless mushaf_id == 2
+    unless surah_number.is_a?(Integer) && surah_number.between?(1, 114)
+      raise ArgumentError, "surah_number must be between 1 and 114"
+    end
+
+    insert_at = insert_at_position.to_i
+
+    transaction do
+      normalize_line_positions!
+      n = lines.count
+      raise ArgumentError, "page has no lines" if n.zero?
+
+      max_lines = 13
+      room = max_lines - n
+      raise ArgumentError, "no room on page (max #{max_lines} lines)" if room < 1
+      unless insert_at >= 1 && insert_at <= n + 1
+        raise ArgumentError, "insert_at_position out of range"
+      end
+
+      shift = room >= 2 ? 2 : 1
+      raise ArgumentError, "not enough room for this insert" if shift > room
+
+      lines.where("position >= ?", insert_at).update_all("position = position + #{shift}")
+
+      if shift == 2
+        lines.create!(position: insert_at, surah_header_position: -1)
+        lines.create!(position: insert_at + 1, surah_header_position: surah_number)
+      else
+        lines.create!(position: insert_at, surah_header_position: surah_number)
+      end
+    end
+
+    self
+  end
+
   private
+
+  def normalize_line_positions!
+    ordered = lines.order(:position).to_a
+    ordered.each_with_index do |line, idx|
+      expected = idx + 1
+      line.update_columns(position: expected) if line.position != expected
+    end
+  end
 
   def build_surah_header_slots(ordered_lines)
     slots = []
