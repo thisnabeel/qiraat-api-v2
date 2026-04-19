@@ -113,10 +113,10 @@ class Page < ApplicationRecord
     target_position
   end
 
-  # API / app: insert basmala + surah banner rows (mushaf 2, max 13 lines per page).
+  # API / app: insert surah banner + basmala rows (mushaf 2, max 13 lines per page).
   # +insert_at_position+ is the first row index for the new block (same convention as +insert_surah_header+).
-  # With room for two new lines: row at +insert_at_position+ gets +surah_header_position+ -1 (basmala),
-  # next row gets +surah_number+. With room for one: only the surah banner row is created.
+  # With room for two new lines: row at +insert_at_position+ gets +surah_number+,
+  # next row gets +surah_header_position+ -1 (basmala). With room for one: only the surah banner row is created.
   def insert_surah_header_block!(insert_at_position:, surah_number:)
     raise ArgumentError, "mushaf 2 only" unless mushaf_id == 2
     unless surah_number.is_a?(Integer) && surah_number.between?(1, 114)
@@ -143,8 +143,8 @@ class Page < ApplicationRecord
       lines.where("position >= ?", insert_at).update_all("position = position + #{shift}")
 
       if shift == 2
-        lines.create!(position: insert_at, surah_header_position: -1)
-        lines.create!(position: insert_at + 1, surah_header_position: surah_number)
+        lines.create!(position: insert_at, surah_header_position: surah_number)
+        lines.create!(position: insert_at + 1, surah_header_position: -1)
       else
         lines.create!(position: insert_at, surah_header_position: surah_number)
       end

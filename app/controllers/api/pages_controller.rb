@@ -28,19 +28,20 @@ class Api::PagesController < ApplicationController
 
   private
 
+  # Serialize lines in mushaf reading order (by line.position). Nested as_json can follow
+  # association load order from preloads; clients render the lines array top-to-bottom.
   def page_json(page)
-    page.as_json(
-      include: {
-        lines: {
-          include: {
-            words: {
-              only: [:id, :position, :content, :ayah]
-            }
-          },
-          only: [:id, :position, :surah_header_position]
-        }
-      },
-      only: [:id, :position]
-    )
+    hash = page.as_json(only: [:id, :position])
+    hash["lines"] = page.lines.sort_by(&:position).map do |line|
+      line.as_json(
+        include: {
+          words: {
+            only: [:id, :position, :content, :ayah]
+          }
+        },
+        only: [:id, :position, :surah_header_position]
+      )
+    end
+    hash
   end
 end
