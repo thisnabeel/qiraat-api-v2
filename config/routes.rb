@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   namespace :api do
     resources :reciters, only: [:index]
     get "reciters/:reciter_slug/recitations", to: "recitations#index", as: :reciter_recitations
+    get "recitation_verse_segments/lookup", to: "recitation_verse_segments#lookup"
     get "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#index"
     put "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#update"
 
