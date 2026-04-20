@@ -2,7 +2,7 @@
 
 # Sets words.ayah to "surah:verse" for mushaf id 2 from the first word of surah 3 verse 1
 # through the end of the mushaf (reading order: page → line → word). Earlier words are
-# not changed. Verse boundaries: ۟ (U+06DF) or PUA ayah-circle (U+F500..U+F61D).
+# not changed. Verse boundaries: ۟ (U+06DF) or PUA ayah-circle (U+F500..U+F73C).
 #
 # From api/:
 #   bin/rails mushaf2:backfill_ayah_from_surah3              # dry-run (default)

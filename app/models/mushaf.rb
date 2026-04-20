@@ -59,7 +59,7 @@ class Mushaf < ApplicationRecord
   # +from_surah+ verse 1 through the end of the mushaf. Earlier words are left unchanged.
   #
   # Reading order: +ordered_lines_with_words+. Verse boundaries match mushaf id 2 tooling
-  # (۟ U+06DF or PUA ayah-circle U+F500..U+F61D); other mushafs use +ayah_marker_word?+ only.
+  # (۟ U+06DF or PUA ayah-circle U+F500..U+F73C); other mushafs use +ayah_marker_word?+ only.
   def backfill_ayahs_from_surah_forward!(from_surah: 3, dry_run: true)
     ordered_lines = ordered_lines_with_words
     return backfill_summary([], [], dry_run: dry_run) if ordered_lines.empty?
@@ -198,7 +198,7 @@ class Mushaf < ApplicationRecord
   end
 
   def ayah_circle_pua_codepoints?(content)
-    content.each_codepoint.any? { |cp| cp >= 0xF500 && cp <= 0xF61D }
+    content.each_codepoint.any? { |cp| cp >= 0xF500 && cp <= 0xF73C }
   end
 
   def apply_ayah_updates!(updates)

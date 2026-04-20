@@ -4,7 +4,7 @@
 # Mushaf#backfill_ayahs_from_markers!, and records one row per surah (from surah 3):
 # first verse only, with start/end page and line (1-based line index on that page).
 # End row is emitted when verse 1 ends (۟ U+06DF or PUA circle). +end_has_pua_circle+
-# is true when the end word uses a PUA ayah-circle (U+F500..U+F61D).
+# is true when the end word uses a PUA ayah-circle (U+F500..U+F73C; see react-native/ayah_circle_pua.json).
 #
 # Usage (from api/):
 #   bin/rails mushaf2:collect_ayah_circle_pua
@@ -17,7 +17,7 @@ namespace :mushaf2 do
     abort "Mushaf id 2 not found." unless mushaf
 
     pua_start = 0xF500
-    pua_end = 0xF61D
+    pua_end = 0xF73C
     counts = Mushaf::SURAH_AYAH_COUNTS
 
     ayah_circle_pua = lambda do |content|

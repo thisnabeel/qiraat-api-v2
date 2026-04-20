@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
   namespace :api do
+    resources :reciters, only: [:index]
+    get "reciters/:reciter_slug/recitations", to: "recitations#index", as: :reciter_recitations
+    get "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#index"
+    put "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#update"
+
     resources :narrators, only: [:index]
     resources :variations, only: [:index, :show, :create, :destroy] do
       collection do
@@ -9,10 +14,12 @@ Rails.application.routes.draw do
     resources :words, only: [:index, :show]
     # Declared before nested `pages` so it never competes with `…/pages/:id`.
     get "mushafs/:id/surah_header_markers", to: "mushafs#surah_header_markers", as: :mushaf_surah_header_markers
+    get "mushafs/:id/preceding_surah_carry", to: "mushafs#preceding_surah_carry"
     resources :mushafs, only: [:index, :show] do
       resources :pages, only: [:show] do
         member do
           post :insert_surah_header
+          patch :bulk_update_ayahs
         end
       end
     end

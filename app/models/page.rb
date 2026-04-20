@@ -153,8 +153,8 @@ class Page < ApplicationRecord
     self
   end
 
-  private
-
+  # Renumbers every line on this page to 1..n in +position+ order (stable for ties).
+  # Used when line +position+ values collide or before operations that assume uniqueness.
   def normalize_line_positions!
     ordered = lines.order(:position).to_a
     ordered.each_with_index do |line, idx|
@@ -162,6 +162,8 @@ class Page < ApplicationRecord
       line.update_columns(position: expected) if line.position != expected
     end
   end
+
+  private
 
   def build_surah_header_slots(ordered_lines)
     slots = []

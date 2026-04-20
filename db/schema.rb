@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_20_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,10 +48,58 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_000000) do
     t.index ["mushaf_id"], name: "index_pages_on_mushaf_id"
   end
 
+  create_table "recitation_narrators", force: :cascade do |t|
+    t.string "slug", null: false
+    t.string "title", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_recitation_narrators_on_slug", unique: true
+  end
+
+  create_table "recitation_verse_segments", force: :cascade do |t|
+    t.bigint "recitation_id", null: false
+    t.string "verse", null: false
+    t.integer "start_time", null: false
+    t.integer "end_time", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recitation_id", "verse"], name: "index_rvs_on_recitation_and_verse"
+    t.index ["recitation_id"], name: "index_recitation_verse_segments_on_recitation_id"
+  end
+
+  create_table "recitations", force: :cascade do |t|
+    t.bigint "reciter_id", null: false
+    t.bigint "recitation_narrator_id", null: false
+    t.integer "surah_position", null: false
+    t.string "audio_url", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recitation_narrator_id"], name: "index_recitations_on_recitation_narrator_id"
+    t.index ["reciter_id", "recitation_narrator_id", "surah_position"], name: "index_recitations_on_reciter_narrator_surah", unique: true
+    t.index ["reciter_id"], name: "index_recitations_on_reciter_id"
+  end
+
+  create_table "reciters", force: :cascade do |t|
+    t.string "slug", null: false
+    t.string "name", null: false
+    t.string "avatar_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_reciters_on_slug", unique: true
+  end
+
   create_table "regions", force: :cascade do |t|
     t.text "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "surahs", force: :cascade do |t|
+    t.integer "position", null: false
+    t.string "name_ar", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["position"], name: "index_surahs_on_position", unique: true
   end
 
   create_table "variations", force: :cascade do |t|
@@ -79,6 +127,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_000000) do
   add_foreign_key "narrators", "narrators"
   add_foreign_key "narrators", "regions"
   add_foreign_key "pages", "mushafs"
+  add_foreign_key "recitation_verse_segments", "recitations"
+  add_foreign_key "recitations", "recitation_narrators"
+  add_foreign_key "recitations", "reciters"
   add_foreign_key "variations", "narrators"
   add_foreign_key "variations", "words"
   add_foreign_key "words", "lines"

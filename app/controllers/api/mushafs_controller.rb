@@ -31,4 +31,44 @@ class Api::MushafsController < ApplicationController
 
     render json: { by_page: by_page.transform_keys(&:to_s) }
   end
+
+  # GET …/mushafs/:id/preceding_surah_carry?page_position=N
+  # Surah carried onto page N from layout: nearest page < N that has any line with
+  # surah_header_position > 0, then forward-scan that page’s lines (same as Verser client).
+  def preceding_surah_carry
+    mushaf = Mushaf.find(params[:id])
+    page_position = params.require(:page_position).to_i
+    if page_position < 1
+      return render json: { error: "page_position must be >= 1" }, status: :bad_request
+    end
+    if page_position <= 1
+      return render json: { surah: nil, source_page_position: nil }
+    end
+
+    prev_page_pos = Line.unscoped
+      .joins(:page)
+      .where(pages: { mushaf_id: mushaf.id })
+      .where("pages.position < ?", page_position)
+      .where("lines.surah_header_position > ?", 0)
+      .maximum("pages.position")
+
+    if prev_page_pos.nil?
+      return render json: { surah: nil, source_page_position: nil }
+    end
+
+    page = mushaf.pages.find_by(position: prev_page_pos)
+    unless page
+      return render json: { error: "Source page not found" }, status: :not_found
+    end
+
+    carry = nil
+    page.lines.order(:position).each do |line|
+      sh = line.surah_header_position.to_i
+      carry = sh if sh > 0
+    end
+
+    render json: { surah: carry, source_page_position: prev_page_pos }
+  rescue ActionController::ParameterMissing => e
+    render json: { error: e.message }, status: :bad_request
+  end
 end
