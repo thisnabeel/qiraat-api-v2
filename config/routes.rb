@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
   namespace :api do
+    namespace :admin do
+      post "verse_marker_session", to: "verse_marker_sessions#create"
+      get "verse_marker_session", to: "verse_marker_sessions#show"
+    end
+
     resources :reciters, only: [:index]
     get "reciters/:reciter_slug/recitations", to: "recitations#index", as: :reciter_recitations
     get "recitation_verse_segments/lookup", to: "recitation_verse_segments#lookup"

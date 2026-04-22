@@ -1,5 +1,8 @@
 class Api::RecitationVerseSegmentsController < ApplicationController
+  include VerseMarkerSessionAuthenticatable
+
   before_action :set_recitation, except: [:lookup]
+  before_action :authenticate_verse_marker_session!, only: [:update]
 
   # Find a segment (and its recitation audio) by verse label, e.g. "104:5".
   # Optional: reciter_slug, narrator_slug to disambiguate when the same verse exists for multiple riwayahs.
