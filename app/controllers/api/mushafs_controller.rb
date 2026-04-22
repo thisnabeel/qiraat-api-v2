@@ -12,6 +12,32 @@ class Api::MushafsController < ApplicationController
     )
   end
 
+  # GET /api/mushafs/:id/segments?category=juz|surah
+  def segments
+    mushaf = Mushaf.find(params[:id])
+    rel = mushaf.mushaf_segments.order(:category, :category_position)
+    if params[:category].present?
+      c = params[:category].to_s.downcase
+      return render json: { error: "category must be juz or surah" }, status: :bad_request unless %w[juz surah].include?(c)
+
+      rel = rel.where(category: c)
+    end
+
+    render json: {
+      mushaf_id: mushaf.id,
+      segments: rel.map do |s|
+        {
+          id: s.id,
+          category: s.category,
+          category_position: s.category_position,
+          title: s.title,
+          start_page: s.start_page,
+          end_page: s.end_page
+        }
+      end
+    }
+  end
+
   # One round-trip for clients that highlight surahs by DB banner rows (e.g. mushaf 2 header tool).
   # Returns page_position (mushaf page number) -> distinct surah_header_position values on that page.
   def surah_header_markers

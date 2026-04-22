@@ -17,6 +17,9 @@ Rails.application.routes.draw do
     get "mushafs/:id/surah_header_markers", to: "mushafs#surah_header_markers", as: :mushaf_surah_header_markers
     get "mushafs/:id/preceding_surah_carry", to: "mushafs#preceding_surah_carry"
     resources :mushafs, only: [:index, :show] do
+      member do
+        get :segments
+      end
       resources :pages, only: [:show] do
         member do
           post :insert_surah_header

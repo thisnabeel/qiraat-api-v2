@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_20_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_21_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_000000) do
     t.datetime "updated_at", null: false
     t.integer "surah_header_position", default: 0, null: false
     t.index ["page_id"], name: "index_lines_on_page_id"
+  end
+
+  create_table "mushaf_segments", force: :cascade do |t|
+    t.bigint "mushaf_id", null: false
+    t.string "category", null: false
+    t.integer "category_position", null: false
+    t.string "title", null: false
+    t.integer "start_page", null: false
+    t.integer "end_page", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mushaf_id", "category", "category_position"], name: "index_mushaf_segments_on_mushaf_category_position", unique: true
+    t.index ["mushaf_id", "category"], name: "index_mushaf_segments_on_mushaf_id_and_category"
+    t.index ["mushaf_id"], name: "index_mushaf_segments_on_mushaf_id"
   end
 
   create_table "mushafs", force: :cascade do |t|
@@ -45,6 +59,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_000000) do
     t.bigint "mushaf_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "content_revision", default: 0, null: false
     t.index ["mushaf_id"], name: "index_pages_on_mushaf_id"
   end
 
@@ -124,6 +139,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_000000) do
   end
 
   add_foreign_key "lines", "pages"
+  add_foreign_key "mushaf_segments", "mushafs"
   add_foreign_key "narrators", "narrators"
   add_foreign_key "narrators", "regions"
   add_foreign_key "pages", "mushafs"

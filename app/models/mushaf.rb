@@ -2,6 +2,7 @@ class Mushaf < ApplicationRecord
   has_many :pages, dependent: :destroy
   has_many :lines, through: :pages
   has_many :words, through: :lines
+  has_many :mushaf_segments, dependent: :destroy
   SURAH_AYAH_COUNTS = [
     7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128, 111, 110, 98,
     135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85,
