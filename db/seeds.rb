@@ -11,6 +11,7 @@ if Mushaf.exists?(id: 2)
     target_mushaf_id: 2,
     source_fixture_mushaf_id: 1,
     page_offset: 0,
-    categories: %w[juz surah]
+    categories: %w[juz]
   )
+  MushafSegment.rebuild_surah_from_line_headers!(mushaf_id: 2)
 end

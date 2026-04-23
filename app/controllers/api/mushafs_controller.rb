@@ -47,6 +47,7 @@ class Api::MushafsController < ApplicationController
       .joins(:page)
       .where(pages: { mushaf_id: @mushaf.id })
       .where("lines.surah_header_position > ?", 0)
+      .order("pages.position ASC, lines.position ASC")
       .pluck("pages.position", "lines.surah_header_position")
 
     by_page = {}

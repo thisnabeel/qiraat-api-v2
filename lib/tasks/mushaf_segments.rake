@@ -26,4 +26,10 @@ namespace :mushaf_segments do
       categories: %w[juz]
     ).inspect
   end
+
+  desc "Delete mushaf 2 surah MushafSegment rows and rebuild from lines.surah_header_position + ../react-native/surah_numbers.json"
+  task rebuild_surah_from_lines: :environment do
+    id = ENV.fetch("MUSHAF_ID", "2").to_i
+    puts MushafSegment.rebuild_surah_from_line_headers!(mushaf_id: id).inspect
+  end
 end
