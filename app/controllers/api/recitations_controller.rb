@@ -1,4 +1,8 @@
 class Api::RecitationsController < ApplicationController
+  include VerseMarkerSessionAuthenticatable
+  before_action :set_recitation, only: [:generate_segments]
+  before_action :authenticate_verse_marker_session!, only: [:generate_segments]
+
   def index
     reciter = Reciter.find_by!(slug: params[:reciter_slug])
     scope = reciter.recitations.includes(:recitation_narrator, :surah).order(:surah_position, :recitation_narrator_id)
@@ -27,7 +31,21 @@ class Api::RecitationsController < ApplicationController
     render json: rows
   end
 
+  def generate_segments
+    result = @recitation.generate_segments!
+    render json: {
+      recitation_id: @recitation.id,
+      segments: result["segments"] || []
+    }
+  rescue StandardError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   private
+
+  def set_recitation
+    @recitation = Recitation.find(params[:id])
+  end
 
   def marked_ayah_counts_by_recitation_id(recitation_ids)
     return {} if recitation_ids.empty?

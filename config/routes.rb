@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
     resources :reciters, only: [:index]
     get "reciters/:reciter_slug/recitations", to: "recitations#index", as: :reciter_recitations
+    post "recitations/:id/generate_segments", to: "recitations#generate_segments"
     get "recitation_verse_segments/lookup", to: "recitation_verse_segments#lookup"
     get "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#index"
     put "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#update"

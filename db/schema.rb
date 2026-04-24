@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,8 +74,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_140000) do
   create_table "recitation_verse_segments", force: :cascade do |t|
     t.bigint "recitation_id", null: false
     t.string "verse", null: false
-    t.integer "start_time", null: false
-    t.integer "end_time", null: false
+    t.bigint "start_time", null: false
+    t.bigint "end_time", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["recitation_id", "verse"], name: "index_rvs_on_recitation_and_verse"

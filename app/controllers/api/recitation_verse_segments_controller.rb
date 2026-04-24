@@ -34,8 +34,8 @@ class Api::RecitationVerseSegmentsController < ApplicationController
     r = seg.recitation
     render json: {
       verse: seg.verse,
-      start_time: seg.start_time,
-      end_time: seg.end_time,
+      start_time: seg.start_time / 1000.0,
+      end_time: seg.end_time / 1000.0,
       recitation_id: r.id,
       surah_position: r.surah_position,
       audio_url: r.audio_url,
@@ -48,7 +48,7 @@ class Api::RecitationVerseSegmentsController < ApplicationController
 
   def index
     rows = @recitation.recitation_verse_segments.order(:start_time, :id)
-    render json: rows.as_json(only: [:id, :verse, :start_time, :end_time])
+    render json: rows.map(&:as_api_json)
   end
 
   def update
@@ -66,8 +66,8 @@ class Api::RecitationVerseSegmentsController < ApplicationController
       verse = row[:verse].to_s
       next if verse.blank?
 
-      st = row[:start_time].to_i
-      en = row[:end_time].to_i
+      st = RecitationVerseSegment.ms_from_api_seconds(row[:start_time])
+      en = RecitationVerseSegment.ms_from_api_seconds(row[:end_time])
       payload << {
         recitation_id: @recitation.id,
         verse: verse,
