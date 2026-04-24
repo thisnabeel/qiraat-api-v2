@@ -64,6 +64,31 @@ class Api::VariationsController < ApplicationController
     end
   end
 
+  # GET /api/variations/counts_by_surah?mushaf_id=2&narrator_id=2
+  # Returns variation totals per surah (mushaf word-order headers), for verse-marker badges.
+  def counts_by_surah
+    mushaf_id = params.require(:mushaf_id).to_i
+    narrator_id = params.require(:narrator_id).to_i
+    unless mushaf_id.positive? && narrator_id.positive?
+      render json: { error: "mushaf_id and narrator_id must be positive integers" }, status: :unprocessable_entity
+      return
+    end
+
+    segments = surah_header_segments_for_mushaf(mushaf_id)
+    positions = Variation
+                .joins(word: { line: :page })
+                .where(pages: { mushaf_id: mushaf_id }, narrator_id: narrator_id)
+                .pluck("pages.position", "lines.position")
+
+    counts = Hash.new(0)
+    positions.each do |page_pos, line_pos|
+      sn = surah_number_at(page_pos.to_i, line_pos.to_i, segments)
+      counts[sn] += 1
+    end
+
+    render json: { mushaf_id: mushaf_id, narrator_id: narrator_id, counts: counts.transform_keys(&:to_s) }
+  end
+
   def show
     @variation = Variation.find(params[:id])
     render json: @variation.as_json(include: [:narrator, :word])
@@ -99,13 +124,17 @@ class Api::VariationsController < ApplicationController
 
   # Each line with surah_header_position > 0 is a surah title row; the value is the surah number.
   # Words on following lines inherit that surah until the next such header (mushaf reading order).
+  def surah_header_segments_for_mushaf(mushaf_id)
+    Line.unscoped
+        .joins(:page)
+        .where(pages: { mushaf_id: mushaf_id })
+        .where("lines.surah_header_position > 0")
+        .order("pages.position ASC, lines.position ASC")
+        .pluck("pages.position", "lines.position", "lines.surah_header_position")
+  end
+
   def append_surah_numbers!(variations_json, mushaf_id)
-    segments = Line.unscoped
-                   .joins(:page)
-                   .where(pages: { mushaf_id: mushaf_id })
-                   .where("lines.surah_header_position > 0")
-                   .order("pages.position ASC, lines.position ASC")
-                   .pluck("pages.position", "lines.position", "lines.surah_header_position")
+    segments = surah_header_segments_for_mushaf(mushaf_id)
 
     variations_json.each do |item|
       word = item["word"]

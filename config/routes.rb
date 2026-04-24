@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     put "recitations/:recitation_id/verse_segments", to: "recitation_verse_segments#update"
 
     resources :narrators, only: [:index]
+    get "variations/counts_by_surah", to: "variations#counts_by_surah"
     resources :variations, only: [:index, :show, :create, :destroy] do
       collection do
         delete "by_keys", to: "variations#destroy_by_keys"
