@@ -23,9 +23,16 @@ class RecitationCatalogImporter
     path = FIXTURES_ROOT.join("surah_numbers.json")
     raise "Missing #{path}" unless path.file?
 
-    JSON.parse(path.read).each do |pos_str, name_ar|
+    JSON.parse(path.read).each do |pos_str, raw|
       pos = pos_str.to_i
       next if pos < 1 || pos > 114
+
+      name_ar =
+        case raw
+        when String then raw
+        when Hash then (raw["ar"] || raw["arabic"]).to_s
+        else ""
+        end
 
       row = Surah.find_or_initialize_by(position: pos)
       row.name_ar = name_ar

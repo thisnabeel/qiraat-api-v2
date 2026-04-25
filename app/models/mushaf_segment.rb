@@ -114,7 +114,13 @@ class MushafSegment < ApplicationRecord
         end
       end_p = start_p if end_p < start_p
 
-      title = titles[e[:num].to_s].to_s
+      raw_title = titles[e[:num].to_s]
+      title =
+        case raw_title
+        when String then raw_title
+        when Hash then (raw_title["ar"] || raw_title["arabic"]).to_s
+        else ""
+        end
       title = "سورة #{e[:num]}" if title.blank?
 
       out << {
