@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_23_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_26_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "global_configs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name", null: false
+    t.string "result", null: false
+    t.index ["name"], name: "index_global_configs_on_name", unique: true
+  end
 
   create_table "lines", force: :cascade do |t|
     t.integer "position"

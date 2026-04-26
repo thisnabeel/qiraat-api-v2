@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   namespace :api do
+    resource :global_config, only: [:show]
+
     namespace :admin do
       post "verse_marker_session", to: "verse_marker_sessions#create"
       get "verse_marker_session", to: "verse_marker_sessions#show"
